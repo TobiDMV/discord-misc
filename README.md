@@ -79,7 +79,7 @@ module.exports = {
         .setDescription("Pong!"),
 
     /**
-     * Execute function should always return interaction, and it should always be async.
+     * Execute function should ALWAYS RETURN interaction, and it should always be ASYNC.
      */
     async execute(interaction) {
         interaction.reply("Pong!")
