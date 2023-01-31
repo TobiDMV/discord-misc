@@ -19,7 +19,9 @@ class Interactions {
 
     async listen() {
         this.ClientManager.client.on(Events.InteractionCreate, async (interaction) => {
-            
+            if (this.ClientManager.blacklisted.includes(interaction.user.id)) { return }
+            if (this.ClientManager.developers.includes(interaction.user.id)) { interaction.developer = true }
+
             let lastInteraction = interaction
 
             for (let funct of this.preFunctions) {

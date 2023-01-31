@@ -1,91 +1,125 @@
-# Discord-Misc
-
-> Hello World! Discord-Misc is a library with miscellaneous discord tools to ease getting quickly started with a discord bot. The purpose is to add quality of life wrappers over discord.js current objects.
-
-## Installation
-```npm install github.com/link_to_repo```
-
+# `discord-misc` :boom:
 ## Getting started
 
-### ClientManager
-> ClientManager object makes it easy to load commands from a folder, as well as add commands if youd like. This will also contain all Pre-Interaction code.
-> Down below is an example on how to use the client manager, as well as notes about the specific functions of it.
+> :black_square_button: = Done
+>
+> :white_square_button: = Either in development, or unfinished.
+>
+> If any of this documentation is confusing, you should probably check out [discord-misc-template](https://github.com/TobiDMV/discord-misc-template) to get an idea on how this is used in action.
+
+<br>
+<br>
+
+### Installation :part_alternation_mark:
+> `npm install https://github.com/TobiDMV/discord-misc.git`
+>
+> If you would like an example of this library in action, go checkout [discord-misc-template](https://github.com/TobiDMV/discord-misc-template)
+> or run `git clone https://github.com/TobiDMV/discord-misc-template.git ./discord-bot-name`
+
+<br>
+<br>
+
+### Todo :dart:
+> - #### `Buttons`
+> > - :white_square_button: Attatch button listener to an easy button creator
+> > - :white_square_button: Create button id parser (to link buttons to specifc actions)
+> - #### `ClientManager`
+> > - :white_square_button: find the commands folder without needing `__dirname` argument
+> > - :white_square_button: finish [discord-vc](https://github.com/TobiDMV/discord-vc) and create tools for it here
+> > - :white_square_button: Create a default sqlite3 database abstraction for saving information
+> > - :white_square_button: Link database abstraction to ClientManager, and create links that can are interchangeable with other methods so other users can add their databases and still make use of the library.
+> > - ##### `ClientManager.interactions`
+> > > - :white_square_button: Add button listening functionality.
+> > > - :white_square_button: Add `interactions.post` method
+<br>
+<br>
+
+### `ClientManager` :memo:
+
+<br>
+
+> :black_square_button: `ClientManager.constructor(client: discordjs.Client, { blacklisted: string[], developers: string[] })`
 ```js
-const { Client, IntentsBitField, Events } = require("discord.js")
-const { ClientManager } = require("discord-misc") 
-
-let token = ""
-
-/**
- * These are optional opts for the ClientManagerOpts instance, it defaults to an empty object
- */
-let ClientManagerOpts = {
-    blacklisted: ["ids", "to", "blacklist"],
-    developers: ["ids", "for", "developers"]
-}
-
-client.on(Events.ClientReady, async () => {
-    let cm = ClientManager(client, ClientManagerOpts)
-    
-    //This loads the commands from the file, i use __dirname
-    cm.loadCommands(__dirname, "/src/commands")
-    
-    //This runs the commands to ou
-    await cm.publishCommands()
-
-    //This starts the listener for discord.js's Events.InteractionCreate 
-    cm.interactions.listen() 
+let manager = new ClientManager(client, {
+    blacklisted: [], //List of userids
+    developers: [] //List of userids
 })
 
-client.login(token)
-```
-### ClientManager.interactions
-```js
-let cm = new ClientManager(client, { developers: ["your_id"] })
-
-client.onReady(Events.ClientReady, async () => {
-    cm.loadCommands(__dirname, "/src/commands")
-    await cm.publishCommands()
-
-    /**
-     * This takes the interaction and manipulates it, adding an interaction.sendEmbed 
-     * function that can now be used inside any command, this same syntax and arguments works for ClientManager.interaction.post
-     * but ClientManager.interaction.post happens after the pre functions, and the command/button is ran, this is useful in the 
-     * event that your building something that needs say, saved data. You could save data after the command finishes, every time 
-     * a command is ran.  
-     */
-    cm.interactions.pre(async interaction => {
-        
-        interaction.sendEmbed = message => {
-            interaction.channel.send({embeds: [new EmbedBuilder.setDescription(message)]}) //require("discord.js").EmbedBuilder
-        }
-
-        return interaction //Remember to return your interaction, and make your function async, if you plan to use this functionality! The same goes for commands.
-    })
-
-})
 ```
 
+<br>
 
-### Commands Folder
-> In your commands folder, your command should look like an object or a class with static objects. Heres an example using a file named `ping.js` in `src/commands`
+> :black_square_button: `ClientManager.loadCommands(...paths) => void` *This command loads a folder of commands to memory and saves the data from the slash commands to send to the discord api in `ClientManager.publish()`. Until i find a better solution, if there is one, `__dirname` will need to be passed through so it can find the path to your commands folder. Otherwise it will try and draw from `discord-misc` project directory tree. To avoid that, use the below code.*
 ```js
-const { SlashCommandBuilder } = require("discord.js")
+manager.loadCommands(__dirname, "/path_to_commands_folder") 
+```
 
-module.exports = {
+<br>
 
-    data: new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("Pong!"),
-
-    /**
-     * Execute function should ALWAYS RETURN interaction, and it should always be ASYNC.
-     */
-    async execute(interaction) {
-        interaction.reply("Pong!")
+> :black_square_button: `ClientManager.addCommand(SlashCommandBuilder, executeFunction) => void` *this adds a command that would need to be loaded at the beginning, and couldnt be loaded from a file for whatever reason*
+```js
+// I honestly dont recommend doing it this way, i added it just in case i ever needed to add a command while running
+// but i dont think this is the best way to load them in, using ClientManager.loadCommands is peak.
+manager.addCommand(
+    new discordjs.SlashCommandBuilder()
+        .setName("example")
+        .setDescription("example"),
+    async function (interaction) {
+        interaction.reply("Hello world")
         return interaction
-    },
-
-}
+    }
+)
+```
+> :black_square_button: `ClientManager.publish() => Promise` *this method publishes the slash command data to the discord api*
+```js
+client.on(Events.ClientReady, async() => {
+    await manager.publish()
+})
 ```
 
+<br>
+
+> :white_square_button: `ClientManager.addButton(name, execute)` *No snippet available because its unfinished. When this is done, it will allow buttons to be executed. But i am considering making a button parser object that generates button ids anyways. So, i dont believe it will neccesarily be required.*
+
+<br>
+
+> :black_square_button: `ClientManager.blacklisted: Array<String>` *list of userids that can not use interactions listed in the bot*
+```js
+//You can add to the blacklist from the ClientManager.constructor, or you can use the below code
+manager.blacklisted.push("user_id_1", "user_id_2")
+```
+
+<br>
+
+> :black_square_button: `clientManager.developers: Array<string>` *list of userids that trigger discord.js `interaction.developer=true` before passing the discord.js `interaction` to the `command.execute(interaction)`, this is a wrapper so the official discord.js library will not reflect `interaction.developer unless you use this library*. The same code used in the previous example applies to this one as well.
+
+<br>
+<br>
+
+#### `ClientManager.interactions`
+> :black_square_button: `ClientManager.interactions.pre(...async (interaction) => interacton)`
+> *its important to make sure you return the interaction. `interactions.pre` should also go after the on `Events.ClientReady` event, but before `interaction.listen()` is ran*
+```js
+/**
+ * This code allows for you to add embedSenders, data savers, loggers, whatever, it accepts as many functions as
+ * you want, and runs all of them. This all gets passed to the interaction object that goes into command.execute().
+ * Then, from your command you can access any of the functions you write here. 
+ */
+
+manager.interactions.pre(interaction => {
+    interaction.doMath = (num, num2) => num * num2
+    return interaction
+})
+```
+
+<br>
+
+> :white_square_button: `ClientManager.interactions.post(...async (interaction) => interaction)` *No snippet because its unfinished, but when it is this will fire off after the command and button checks are ran, which will allow you to add other stuff after the command is finished. This will mostly only be useful for logging i feel, as you could save data about commands there. But this also receives the same object as the other interaction functions. So it will have all things you add in `ClientManager.interactions.pre` and `command.execute`*
+
+<br>
+
+> :black_square_button: `ClientManager.interactions.listen() => void`
+> *this creates a new event listener in the discordjs client that lets the slash commands and buttons fire off, this should be directly after `ClientManager.
+```js
+manager.interactions.listen()
+```
