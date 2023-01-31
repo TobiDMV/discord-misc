@@ -16,6 +16,10 @@ class ClientManager {
     constructor(client, config={}) {
         this.blacklisted = config.blacklisted ? config.blacklisted : []
         this.developers = config.developers ? config.developers : []
+
+        /**
+         * @type {Client}
+         */
         this.client = client
         this.commands = new Collection()
         this.guildCommands = new Collection()
@@ -149,10 +153,6 @@ class ClientManager {
     }
 }
 
-function poo(...arg) {
-    console.log(...arg)
-}
-
 module.exports = {
-    ClientManager, poo
+    ClientManager
 }
