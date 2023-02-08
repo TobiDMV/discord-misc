@@ -1,4 +1,4 @@
-const { Events, InteractionType } = require("discord.js")
+const { Events, BaseInteraction } = require("discord.js")
 
 class Interactions {
     /**
@@ -27,7 +27,7 @@ class Interactions {
             for (let funct of this.preFunctions) {
                 let newInteraction = await funct(lastInteraction)
                 
-                if (newInteraction instanceof InteractionType) {
+                if (newInteraction instanceof BaseInteraction) {
                     lastInteraction = newInteraction
                 } else {
                     console.error("Error: Please pass interaction object back through pre callback")
