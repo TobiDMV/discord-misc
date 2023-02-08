@@ -35,7 +35,7 @@ class ClientManager {
          */
         this.guildCommandsData = new Collection()
 
-        this.interactions = new Interactions()
+        this.interactions = new Interactions(this)
     }
 
     /**
